@@ -1,0 +1,18 @@
+# Executables
+*.exe
+*.out
+*.app
+
+# Object files
+*.o
+*.obj
+
+# Debug symbols
+*.pdb
+
+# CMake (if you ever use it)
+CMakeFiles/
+CMakeCache.txt
+
+# VSCode (optional)
+.vscode/
