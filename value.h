@@ -27,3 +27,5 @@ public:
 shared_ptr<Value> operator+(const shared_ptr<Value> &a, const shared_ptr<Value> &b);
 
 shared_ptr<Value> operator*(const shared_ptr<Value> &a, const shared_ptr<Value> &b);
+
+shared_ptr<Value> ReLU(const shared_ptr<Value> &a);

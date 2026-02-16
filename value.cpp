@@ -54,3 +54,11 @@ shared_ptr<Value> operator*(const shared_ptr<Value> &a, const shared_ptr<Value> 
                               vector<shared_ptr<Value>>{a, b},
                               "*");
 }
+
+shared_ptr<Value> ReLU(const shared_ptr<Value> &a)
+{
+    double result = 0;
+    if (a->data)
+        result = a->data;
+    return make_shared<Value>(result, "ReLU(" + a->label + ")", a->verbose, vector<shared_ptr<Value>>{a}, "ReLU");
+}

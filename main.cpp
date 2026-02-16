@@ -12,4 +12,6 @@ int main()
     c->label = "c";
     auto d = c * a;
     d->print();
+    auto e = ReLU(d);
+    e->print();
 }
