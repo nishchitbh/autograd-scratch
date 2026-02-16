@@ -12,6 +12,7 @@ Value::Value(double data,
     this->grad = 0;
     this->label = label;
     this->verbose = verbose;
+    this->backward = []() {};
 }
 
 void Value::print()
@@ -37,20 +38,32 @@ void Value::print()
 
 shared_ptr<Value> operator+(const shared_ptr<Value> &a, const shared_ptr<Value> &b)
 {
-    return make_shared<Value>(a->data + b->data,
-                              a->label + "+" + b->label,
-                              a->verbose || b->verbose,
-                              vector<shared_ptr<Value>>{a, b},
-                              "+");
+    auto out = make_shared<Value>(a->data + b->data,
+                                  a->label + "+" + b->label,
+                                  a->verbose || b->verbose,
+                                  vector<shared_ptr<Value>>{a, b},
+                                  "+");
+    out->backward = [a, b, out]()
+    {
+        a->grad += 1.0 * out->grad;
+        b->grad += 1.0 * out->grad;
+    };
+    return out;
 }
 
 shared_ptr<Value> operator*(const shared_ptr<Value> &a, const shared_ptr<Value> &b)
 {
-    return make_shared<Value>(a->data * b->data,
-                              a->label + "*" + b->label,
-                              a->verbose || b->verbose,
-                              vector<shared_ptr<Value>>{a, b},
-                              "*");
+    auto out = make_shared<Value>(a->data * b->data,
+                                  a->label + "*" + b->label,
+                                  a->verbose || b->verbose,
+                                  vector<shared_ptr<Value>>{a, b},
+                                  "*");
+    out->backward = [a, b, out]()
+    {
+        a->grad += b->data * out->grad;
+        b->grad += a->data * out->grad;
+    };
+    return out;
 }
 
 shared_ptr<Value> ReLU(const shared_ptr<Value> &a)
@@ -58,5 +71,35 @@ shared_ptr<Value> ReLU(const shared_ptr<Value> &a)
     double result = 0;
     if (a->data)
         result = a->data;
-    return make_shared<Value>(result, "ReLU(" + a->label + ")", a->verbose, vector<shared_ptr<Value>>{a}, "ReLU");
+
+    auto out = make_shared<Value>(result, "ReLU(" + a->label + ")", a->verbose, vector<shared_ptr<Value>>{a}, "ReLU");
+    out->backward = [a, result, out]()
+    {
+        a->grad += (result > 0) * out->grad;
+    };
+    return out;
 }
+
+shared_ptr<Value> tanh(const shared_ptr<Value> &a)
+{
+    double e = exp(1.0);
+    double x = a->data;
+    double t = (pow(e, 2 * x) - 1) / (pow(e, 2 * x) + 1);
+    auto out = make_shared<Value>(t, "tanh(" + a->label + ")", a->verbose, vector<shared_ptr<Value>>{a}, "tanh");
+    out->backward = [a, t, out]()
+    {
+        a->grad += (1 - (t * t)) * out->grad;
+    };
+    return out;
+}
+
+// void printGraph(const shared_ptr<Value> &a)
+// {
+
+//     if ((a->prev).size() < 1)
+//     {
+//         return;
+//     }
+//     cout << a->label << " | data=" << a->data << " | grad=" << a->grad;
+//     printGraph((a->prev)[0]);
+// }

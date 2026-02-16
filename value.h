@@ -1,7 +1,9 @@
 #pragma once
+#include <functional>
 #include <iostream>
 #include <vector>
 #include <memory>
+#include <cmath>
 
 using namespace std;
 
@@ -16,6 +18,7 @@ public:
     vector<shared_ptr<Value>> prev;
     bool verbose;
     double grad;
+    function<void()> backward;
     Value(double data = 0,
           string label = "",
           bool verbose = false,
@@ -29,3 +32,5 @@ shared_ptr<Value> operator+(const shared_ptr<Value> &a, const shared_ptr<Value> 
 shared_ptr<Value> operator*(const shared_ptr<Value> &a, const shared_ptr<Value> &b);
 
 shared_ptr<Value> ReLU(const shared_ptr<Value> &a);
+shared_ptr<Value> tanh(const shared_ptr<Value> &a);
+// void printGraph(const shared_ptr<Value> &a);
