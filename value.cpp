@@ -21,15 +21,13 @@ void Value::print()
         cout << "Value(data=" << data
              << ", label=" << label
              << ", parents={";
-
         for (size_t i = 0; i < prev.size(); i++)
         {
             cout << prev[i]->label;
             if (i + 1 < prev.size())
                 cout << ", ";
         }
-
-        cout << "})" << endl;
+        cout << "}, op=" << op << ", grad=" << grad << ")" << endl;
     }
     else
     {

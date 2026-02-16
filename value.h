@@ -8,7 +8,6 @@ using namespace std;
 class Value
 {
 private:
-    double grad;
     string op;
 
 public:
@@ -16,6 +15,7 @@ public:
     string label;
     vector<shared_ptr<Value>> prev;
     bool verbose;
+    double grad;
     Value(double data = 0,
           string label = "",
           bool verbose = false,
