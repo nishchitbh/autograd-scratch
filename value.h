@@ -7,7 +7,7 @@
 #include <unordered_set>
 using namespace std;
 
-class Value
+class Value : public enable_shared_from_this<Value>
 {
 private:
     string op;
@@ -18,13 +18,14 @@ public:
     vector<shared_ptr<Value>> prev;
     bool verbose;
     double grad;
-    function<void()> backward;
+    function<void()> _backward;
     Value(double data = 0,
           string label = "",
           bool verbose = false,
           vector<shared_ptr<Value>> parents = {},
           string op = "");
     void print();
+    void backward();
 };
 
 shared_ptr<Value> operator+(const shared_ptr<Value> &a, const shared_ptr<Value> &b);

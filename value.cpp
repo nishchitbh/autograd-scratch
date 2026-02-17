@@ -12,7 +12,31 @@ Value::Value(double data,
     this->grad = 0;
     this->label = label;
     this->verbose = verbose;
-    this->backward = []() {};
+    this->_backward = []() {};
+}
+
+void Value::backward()
+{
+    unordered_set<Value *> visited;
+    vector<shared_ptr<Value>> topo;
+    function<void(Value *)> dfs = [&](Value *node)
+    {
+        if (visited.count(node))
+            return;
+        visited.insert(node);
+        for (auto &parent : node->prev)
+        {
+            dfs(parent.get());
+        }
+        topo.push_back(node->shared_from_this());
+    };
+    dfs(this);
+    for (auto &node : topo)
+        node->grad = 0.0;
+    this->grad = 1.0;
+    for (auto it = topo.rbegin(); it != topo.rend(); it++)
+        if ((*it)->_backward)
+            (*it)->_backward();
 }
 
 void Value::print()
@@ -43,7 +67,7 @@ shared_ptr<Value> operator+(const shared_ptr<Value> &a, const shared_ptr<Value> 
                                   a->verbose || b->verbose,
                                   vector<shared_ptr<Value>>{a, b},
                                   "+");
-    out->backward = [a, b, out]()
+    out->_backward = [a, b, out]()
     {
         a->grad += 1.0 * out->grad;
         b->grad += 1.0 * out->grad;
@@ -58,7 +82,7 @@ shared_ptr<Value> operator*(const shared_ptr<Value> &a, const shared_ptr<Value> 
                                   a->verbose || b->verbose,
                                   vector<shared_ptr<Value>>{a, b},
                                   "*");
-    out->backward = [a, b, out]()
+    out->_backward = [a, b, out]()
     {
         a->grad += b->data * out->grad;
         b->grad += a->data * out->grad;
@@ -73,7 +97,7 @@ shared_ptr<Value> ReLU(const shared_ptr<Value> &a)
         result = a->data;
 
     auto out = make_shared<Value>(result, "ReLU(" + a->label + ")", a->verbose, vector<shared_ptr<Value>>{a}, "ReLU");
-    out->backward = [a, result, out]()
+    out->_backward = [a, result, out]()
     {
         a->grad += (result > 0) * out->grad;
     };
@@ -86,7 +110,7 @@ shared_ptr<Value> tanh(const shared_ptr<Value> &a)
     double x = a->data;
     double t = (pow(e, 2 * x) - 1) / (pow(e, 2 * x) + 1);
     auto out = make_shared<Value>(t, "tanh(" + a->label + ")", a->verbose, vector<shared_ptr<Value>>{a}, "tanh");
-    out->backward = [a, t, out]()
+    out->_backward = [a, t, out]()
     {
         a->grad += (1 - (t * t)) * out->grad;
     };
