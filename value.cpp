@@ -93,13 +93,29 @@ shared_ptr<Value> tanh(const shared_ptr<Value> &a)
     return out;
 }
 
-// void printGraph(const shared_ptr<Value> &a)
-// {
+void printGraph(
+    const shared_ptr<Value> &node,
+    const string &prefix,
+    bool isLast,
+    unordered_set<Value *> &visited)
+{
+    if (!node || visited.count(node.get()))
+        return;
+    visited.insert(node.get());
+    cout << prefix
+         << (isLast ? "+-- " : "|-- ");
+    node->print();
+    cout << "\n";
+    string newPrefix = prefix + (isLast ? "    " : "|   ");
+    for (size_t i = 0; i < node->prev.size(); ++i)
+    {
+        bool lastChild = (i == node->prev.size() - 1);
+        printGraph(node->prev[i], newPrefix, lastChild, visited);
+    }
+}
 
-//     if ((a->prev).size() < 1)
-//     {
-//         return;
-//     }
-//     cout << a->label << " | data=" << a->data << " | grad=" << a->grad;
-//     printGraph((a->prev)[0]);
-// }
+void printGraph(const shared_ptr<Value> &a)
+{
+    unordered_set<Value *> visited;
+    printGraph(a, "", true, visited);
+}

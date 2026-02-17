@@ -4,7 +4,7 @@
 #include <vector>
 #include <memory>
 #include <cmath>
-
+#include <unordered_set>
 using namespace std;
 
 class Value
@@ -33,4 +33,4 @@ shared_ptr<Value> operator*(const shared_ptr<Value> &a, const shared_ptr<Value> 
 
 shared_ptr<Value> ReLU(const shared_ptr<Value> &a);
 shared_ptr<Value> tanh(const shared_ptr<Value> &a);
-// void printGraph(const shared_ptr<Value> &a);
+void printGraph(const std::shared_ptr<Value> &a);

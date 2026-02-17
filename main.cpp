@@ -13,14 +13,5 @@ int main()
     z->label = "z";
     auto y = tanh(z);
     y->label = "y";
-    y->grad = 1;
-    y->print();
-    y->backward();
-    z->print();
-    z->backward();
-    z1->print();
-    b1->print();
-    z1->backward();
-    w1->print();
-    x1->print();
+    printGraph(y);
 }
